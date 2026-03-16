@@ -17,7 +17,7 @@ initial_prompt = prompt
 top_token_id = 1
 count_token = 0
 
-while top_token_id != model._tokenizer.eos_token_id and count_token < 5:
+while top_token_id != model._tokenizer.eos_token_id and count_token < 20:
 
     text_encode = model.encode(prompt)
 
@@ -36,7 +36,7 @@ while top_token_id != model._tokenizer.eos_token_id and count_token < 5:
     count_token += 1
 
 result = prompt[len(initial_prompt):]
-print(result)
+print("result :", result)
 
 # print(f"Top token ID : {top_token_id}")
 # print(f"Top token    : '{top_token_text}'")
