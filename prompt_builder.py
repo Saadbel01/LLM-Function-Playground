@@ -20,7 +20,7 @@ def build_prompt(prompt: str, functions: list[FunctionDefinition]) -> str:
         f"{prompt}\n"
         f"<|im_end|>\n"
         f"<|im_start|>assistant\n"
-)
+    )
 
 
 if __name__ == "__main__":

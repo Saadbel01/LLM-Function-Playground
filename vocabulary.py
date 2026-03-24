@@ -20,6 +20,8 @@ class Vocabulary:
         self.structural_tokens = self.get_structural_tokens()
         self.number_token_ids = self.get_number_token_ids()
         self.string_token_ids = self.get_string_tokens_ids()
+        self.name_key_table = self.prefix_table(["name"])
+        self.params_key_table = self.prefix_table(["parameters"])
         function_names = [f.name for f in functions]
         self.function_name_table = self.prefix_table(function_names)
         self.arg_key_tables = {}
