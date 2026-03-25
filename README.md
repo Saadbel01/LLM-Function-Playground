@@ -1,4 +1,4 @@
-# Call_me_maybe
+# LLM-Function-Playground
 
 A small learning project to understand how Large Language Models (LLMs) work in practice, with a focus on:
 
