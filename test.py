@@ -1,5 +1,5 @@
 from llm_sdk import Small_LLM_Model
-import numpy as np
+# import numpy as np
 import json
 
 model = Small_LLM_Model()
