@@ -2,6 +2,42 @@
 
 A small learning project to understand how Large Language Models (LLMs) work in practice, with a focus on:
 
+## Getting started
+
+### Prerequisites
+
+- Python 3.10 or higher
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager
+
+### Setup and run
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Saadbel01/LLM-Function-Playground.git
+cd LLM-Function-Playground
+
+# 2. Install all dependencies (including the local llm_sdk package)
+uv sync
+
+# 3. Run the test script
+uv run test.py
+```
+
+Alternatively, if you prefer a plain `pip` workflow:
+
+```bash
+# Install the local llm_sdk package in editable mode along with its dependencies
+pip install -e ./llm_sdk
+
+# Install the root project dependencies
+pip install numpy pydantic
+
+# Run the test script
+python test.py
+```
+
+> **Note:** `test.py` downloads the `Qwen/Qwen3-0.6B` model weights from Hugging Face on first run (~1 GB). Make sure you have an internet connection and sufficient disk space.
+
 - Constrained decoding
 - Function calling
 - Structured output from a Qwen ("Qween") model
