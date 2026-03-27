@@ -191,6 +191,11 @@ class ConstrainedDecoder:
             if token_string == "}":
                 state.current_stage = Stage.DONE
 
+    def mask_logits(self, state: DecoderState, logits: list[int]) -> list[int]:
+        valid_ids = self.get_valid_token_ids(state)
+        return [e if i in valid_ids else float('-inf')
+                for i, e in enumerate(logits)]
+
 
 if __name__ == "__main__":
     stage = Stage("NEED_OPEN_BRACE")
