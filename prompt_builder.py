@@ -7,7 +7,7 @@ def build_prompt(prompt: str, functions: list[FunctionDefinition]) -> str:
         params = []
         for par_key, par_val in fun.parameters.items():
             params.append(f"{par_key}: {par_val.type}")
-        available_functions += (f"- {fun.name}({", ".join(params)}) ->"
+        available_functions += (f"- {fun.name}({', '.join(params)}) ->"
                                 f" {fun.returns.type}: {fun.description}\n")
     return (
         f"<|im_start|>system\n"
