@@ -15,7 +15,7 @@ def main():
     parser = Parser("input/functions_definition.json",
                     "input/function_calling_tests.json")
     list_funcs = parser.read_func_def()
-    prompt_tokens = model.encode(build_prompt("What is the sum of 2 and 3?",
+    prompt_tokens = model.encode(build_prompt("Substitute the word 'cat' with 'dog' in 'The cat sat on the mat with another cat'",
                                               list_funcs))[0].tolist()
     vocab = Vocabulary(model, list_funcs)
     decoder = ConstrainedDecoder(vocab, list_funcs)
@@ -25,6 +25,8 @@ def main():
         logits = model.get_logits_from_input_ids(all_tokens)
         masked_logits = decoder.mask_logits(state, np.array(logits))
         token = int(np.argmax(masked_logits))
+        # print(state.current_stage.name)
+        print(model.decode(token), end="",  flush=True)
         generated_tokens.append(token)
         decoder.update_state(state, token)
 

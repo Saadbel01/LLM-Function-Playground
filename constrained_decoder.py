@@ -28,6 +28,7 @@ class DecoderState:
         self.chosen_function: str = ""
         self.current_arg: str = ""
         self.used_keys: set[str] = set()
+        self.remaining_keys: set[str] = set()
         self.collected_args: dict[str, float | str | bool] = {}
 
 
@@ -36,19 +37,13 @@ class ConstrainedDecoder:
     def __init__(self, vocab: Vocabulary, functions: list[FunctionDefinition]):
         self.vocab = vocab
         self.functions = functions
+        self.function_map = {fun.name: fun for fun in functions}
+        self.function_names = set(self.function_map.keys())
 
     def get_function_param_type(self, state: DecoderState) -> str:
-        for fun in self.functions:
-            if fun.name == state.chosen_function:
-                return fun.parameters[state.current_arg].type
-
-    def get_remaining_keys(self, state: DecoderState) -> list[str]:
-        for fun in self.functions:
-            if fun.name == state.chosen_function:
-                remaining = [k for k in fun.parameters.keys()
-                             if k not in state.used_keys]
-                break
-        return remaining
+        return self.function_map[
+            state.chosen_function
+        ].parameters[state.current_arg].type
 
     def get_valid_token_ids(self, state: DecoderState) -> list[int | None]:
 
@@ -96,8 +91,7 @@ class ConstrainedDecoder:
                 return self.vocab.boolean_table[state.partial]
 
         elif state.current_stage == Stage.NEED_COMMA_OR_CLOSE:
-            remaining = self.get_remaining_keys(state)
-            if len(remaining) > 0:
+            if len(state.remaining_keys) > 0:
                 return [self.vocab.structural_tokens[',']]
             else:
                 return [self.vocab.structural_tokens['}']]
@@ -125,8 +119,10 @@ class ConstrainedDecoder:
                 state.current_stage = Stage.NEED_FUNC_NAME
         elif state.current_stage == Stage.NEED_FUNC_NAME:
             state.partial += token_string
-            if state.partial in [fun.name for fun in self.functions]:
+            if state.partial in self.function_names:
                 state.chosen_function = state.partial
+                state.remaining_keys = set(self.function_map[
+                    state.chosen_function].parameters.keys())
                 state.partial = ""
                 state.current_stage = Stage.NEED_COMMA
         elif state.current_stage == Stage.NEED_COMMA:
@@ -145,7 +141,7 @@ class ConstrainedDecoder:
                 state.current_stage = Stage.NEED_ARG_KEY
         elif state.current_stage == Stage.NEED_ARG_KEY:
             state.partial += token_string
-            if (state.partial in self.get_remaining_keys(state)):
+            if state.partial in state.remaining_keys:
                 state.current_arg = state.partial
                 state.partial = ""
                 state.current_stage = Stage.NEED_ARG_COLON
@@ -159,19 +155,21 @@ class ConstrainedDecoder:
                     state.collected_args[state.current_arg] = float(
                         state.partial)
                     state.used_keys.add(state.current_arg)
+                    state.remaining_keys.discard(state.current_arg)
                     state.partial = ""
-                    if token_string == "}":
+                    if "}" in token_string:
                         state.current_stage = Stage.NEED_CLOSE_OUTER
-                    elif token_string == ",":
+                    elif "," in token_string:
                         state.current_stage = Stage.NEED_ARG_KEY
                 else:
                     state.partial += token_string
             elif type_selected == "string":
-                if token_string == "\"":
-                    state.current_stage = Stage.NEED_COMMA_OR_CLOSE
+                if token_string == '"':
                     state.collected_args[state.current_arg] = state.partial
                     state.used_keys.add(state.current_arg)
+                    state.remaining_keys.discard(state.current_arg)
                     state.partial = ""
+                    state.current_stage = Stage.NEED_COMMA_OR_CLOSE
                 else:
                     state.partial += token_string
             elif type_selected == "boolean":
@@ -180,6 +178,7 @@ class ConstrainedDecoder:
                     state.collected_args[state.current_arg] = (
                         state.partial == "true")
                     state.used_keys.add(state.current_arg)
+                    state.remaining_keys.discard(state.current_arg)
                     state.partial = ""
                     state.current_stage = Stage.NEED_COMMA_OR_CLOSE
         elif state.current_stage == Stage.NEED_COMMA_OR_CLOSE:
@@ -191,10 +190,14 @@ class ConstrainedDecoder:
             if token_string == "}":
                 state.current_stage = Stage.DONE
 
-    def mask_logits(self, state: DecoderState, logits: list[int]) -> list[int]:
+    def mask_logits(self, state: DecoderState, logits):
+
         valid_ids = self.get_valid_token_ids(state)
-        return [e if i in valid_ids else float('-inf')
-                for i, e in enumerate(logits)]
+        masked = [float('-inf')] * len(logits)
+        for i in valid_ids:
+            masked[i] = logits[i]
+
+        return masked
 
 
 if __name__ == "__main__":
