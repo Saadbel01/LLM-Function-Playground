@@ -20,8 +20,8 @@ class Vocabulary:
         self.structural_tokens = self.get_structural_tokens()
         self.number_token_ids = self.get_number_token_ids()
         self.string_token_ids = self.get_string_tokens_ids()
-        self.name_key_table = self.prefix_table(["name"])
-        self.params_key_table = self.prefix_table(["parameters"])
+        self.name_key_table = self.prefix_table(['"name"'])
+        self.params_key_table = self.prefix_table(['"parameters"'])
         function_names = [f.name for f in functions]
         self.function_name_table = self.prefix_table(function_names)
         self.arg_key_tables = {}
@@ -46,7 +46,7 @@ class Vocabulary:
 
     def get_string_tokens_ids(self) -> list[int]:
         return [id_tok for token, id_tok in self.token_to_id.items()
-                if token != '"']
+                if '\n' not in token]
 
     def get_structural_tokens(self) -> dict[str, int]:
         structural_chars = ["{", "}", ":", ",", '"']
@@ -60,6 +60,8 @@ class Vocabulary:
             partial = queue.popleft()
             table[partial] = []
             for token, id_token in self.token_to_id.items():
+                if token[:1].isspace():
+                    continue
                 candidate = partial + token
                 if any(v_func.startswith(candidate)
                        for v_func in valid_completations):

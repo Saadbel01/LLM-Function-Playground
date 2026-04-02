@@ -13,6 +13,9 @@ def build_prompt(prompt: str, functions: list[FunctionDefinition]) -> str:
         f"<|im_start|>system\n"
         f"You are a function calling assistant. Given a user request,\n"
         f"select the appropriate function and extract the arguments.\n"
+        f"respond ONLY with a "
+        f"exactly valid JSON object in this format:\n"
+        '{"name": "function_name", "parameters": {"key": "value"}}\n'
         f"Available functions:\n"
         f"{available_functions}"
         f"<|im_end|>\n"
