@@ -1,6 +1,6 @@
 from enum import Enum
-from vocabulary import Vocabulary
-from class_models import FunctionDefinition
+from src.vocabulary import Vocabulary
+from src.class_models import FunctionDefinition
 
 
 class Stage(Enum):

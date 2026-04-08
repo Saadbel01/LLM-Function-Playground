@@ -1,4 +1,4 @@
-from class_models import FunctionDefinition, TestPrompt
+from src.class_models import FunctionDefinition, TestPrompt
 import json
 from pydantic import ValidationError
 

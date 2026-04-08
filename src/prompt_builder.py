@@ -1,4 +1,4 @@
-from class_models import FunctionDefinition
+from src.class_models import FunctionDefinition
 
 
 def build_prompt(prompt: str, functions: list[FunctionDefinition]) -> str:
@@ -27,7 +27,7 @@ def build_prompt(prompt: str, functions: list[FunctionDefinition]) -> str:
 
 
 if __name__ == "__main__":
-    from parser import Parser
+    from src.parser import Parser
     parser = Parser("input/functions_definition.json",
                     "input/function_calling_tests.json")
     list_def = parser.read_func_def()

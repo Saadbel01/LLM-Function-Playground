@@ -1,8 +1,8 @@
-from class_models import FunctionDefinition
+from src.class_models import FunctionDefinition
 from collections import deque
 import json
 from llm_sdk import Small_LLM_Model
-from parser import Parser
+from src.parser import Parser
 
 
 class Vocabulary:

@@ -1,5 +1,17 @@
 [
   {
+    "name": "fn_unknown",
+    "description": "Use this function when no other function matches the user request or when the request is unclear.",
+    "parameters": {
+      "query": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  },
+  {
     "name": "fn_add_numbers",
     "description": "Add two numbers together and return their sum.",
     "parameters": {

@@ -1,12 +1,13 @@
-from constrained_decoder import DecoderState
+from src.constrained_decoder import DecoderState
 from llm_sdk import Small_LLM_Model
-from prompt_builder import build_prompt
-from parser import Parser
-from constrained_decoder import Stage, ConstrainedDecoder
+from src.prompt_builder import build_prompt
+from src.parser import Parser
+from src.constrained_decoder import Stage, ConstrainedDecoder
 import numpy as np
-from vocabulary import Vocabulary
-from class_models import TestPrompt, FunctionCall
+from src.vocabulary import Vocabulary
+from src.class_models import TestPrompt, FunctionCall
 import json
+import os
 
 
 def main():
@@ -49,29 +50,12 @@ def main():
     return list_func_call
 
 
-# def simple_generation():
-#     model = Small_LLM_Model()
-#     path_tokenizer = model.get_path_to_tokenizer_file()
-#     with open(path_tokenizer, 'r') as f:
-#         tokenizer = json.load(f)
-#     print(tokenizer["<|im_end|>"])
-#     prompt = "Reverse a string and return the reversed result."
-#     token = 0
-#     print()
-#     while token != 151643:
-#         encoded_prompt = model.encode(prompt)
-#         logits = model.get_logits_from_input_ids(encoded_prompt[0].tolist())
-#         token = int(np.argmax(logits))
-#         decoded_token = model.decode(token)
-#         print(decoded_token, end="",  flush=True)
-#         prompt += decoded_token
-
-
 if __name__ == "__main__":
     try:
         list_call = main()
-
-        with open("output.json", "w", encoding="utf-8") as f:
+        os.makedirs("data/output", exist_ok=True)
+        with open("data/output/function_calling_results.json",
+                  "w", encoding="utf-8") as f:
             json.dump(
                 [fc.model_dump() for fc in list_call],
                 f,
