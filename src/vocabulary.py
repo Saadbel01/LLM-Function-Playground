@@ -7,7 +7,8 @@ from src.parser import Parser
 
 class Vocabulary:
 
-    def __init__(self, llm, functions: list[FunctionDefinition]) -> None:
+    def __init__(self, llm: Small_LLM_Model,
+                 functions: list[FunctionDefinition]) -> None:
         vocab_path = llm.get_path_to_vocab_file()
         try:
             with open(vocab_path, 'r', encoding='utf-8') as f:

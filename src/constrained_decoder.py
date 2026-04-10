@@ -27,7 +27,7 @@ class Stage(Enum):
 
 class DecoderState:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.current_stage: Stage = Stage.NEED_OPEN_BRACE
         self.partial: str = ""
         self.chosen_function: str = ""
@@ -39,7 +39,8 @@ class DecoderState:
 
 class ConstrainedDecoder:
 
-    def __init__(self, vocab: Vocabulary, functions: list[FunctionDefinition]):
+    def __init__(self, vocab: Vocabulary,
+                 functions: list[FunctionDefinition]) -> None:
         self.vocab = vocab
         self.functions = functions
         self.function_map = {fun.name: fun for fun in functions}
@@ -210,7 +211,9 @@ class ConstrainedDecoder:
                 if '"' in token_string:
                     idx = token_string.find('"')
                     state.partial += token_string[:idx]
-                    state.collected_args[state.current_arg] = state.partial.replace("\u0120", " ").strip()
+                    state.collected_args[
+                        state.current_arg] = state.partial.replace(
+                            "\u0120", " ").strip()
                     state.used_keys.add(state.current_arg)
                     state.remaining_keys.discard(state.current_arg)
                     state.partial = ""
@@ -259,7 +262,8 @@ class ConstrainedDecoder:
             if token_string == "}":
                 state.current_stage = Stage.DONE
 
-    def mask_logits(self, state: DecoderState, logits) -> list[float]:
+    def mask_logits(self, state: DecoderState,
+                    logits: list[float]) -> list[float]:
 
         valid_ids = self.get_valid_token_ids(state)
         masked = [float('-inf')] * len(logits)

@@ -1,13 +1,6 @@
 [
   {
-    "prompt": "how is amine bouskha",
-    "name": "fn_unknown",
-    "parameters": {
-      "query": "how is amine bouskha"
-    }
-  },
-  {
-    "prompt": "What is the sum of 2 and 3?",
+    "prompt": "What is the sum of 2 and 3 AND 45?",
     "name": "fn_add_numbers",
     "parameters": {
       "a": 2.0,
