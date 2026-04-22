@@ -225,7 +225,12 @@ class ConstrainedDecoder:
                             state.current_stage = Stage.NEED_CLOSE_OUTER
                     else:
                         if "," in token_string:
-                            state.current_stage = Stage.NEED_QUOTE_OPEN_ARG_KEY
+                            indx = token_string.find(',')
+                            if '"' in token_string[indx:]:
+                                state.current_stage = Stage.NEED_ARG_KEY
+                            else:
+                                state_need = Stage.NEED_QUOTE_OPEN_ARG_KEY
+                                state.current_stage = state_need
                         else:
                             state.current_stage = Stage.NEED_COMMA_OR_CLOSE
                 elif '}' in token_string:

@@ -10,7 +10,6 @@ import json
 import os
 
 
-
 def main() -> list[FunctionCall]:
 
     model = Small_LLM_Model()
@@ -67,6 +66,7 @@ def main() -> list[FunctionCall]:
             previous_token = all_tokens[-1]
             logits = model.get_logits_from_input_ids(all_tokens)
             masked_logits = decoder.mask_logits(state, np.array(logits))
+            # print(state.current_stage)
             if quote_forced:
                 token = vocab.token_to_id['"}']
                 quote_forced = False

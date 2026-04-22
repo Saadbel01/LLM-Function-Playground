@@ -23,4 +23,10 @@ lint-strict:
 	uv run flake8 .
 	uv run mypy . --strict
 
+test:
+	uv run python3 -m src --functions_definition moulinette/moulinette/successfully/input/functions_definition.json --input moulinette/moulinette/successfully/input/function_calling_tests.json 
+
+grede:
+	uv run python3 -m moulinette grade_student_answers /home/sbelcadi/goinfre/LLM-Function-Playground/data/output/function_calling_results.json --set private --student successfully
+
 .PHONY: install run debug clean lint lint-strict
