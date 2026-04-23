@@ -4,12 +4,15 @@ from pydantic import ValidationError
 
 
 class Parser:
+    """Read and validate function definitions and test prompts from JSON."""
 
     def __init__(self, func_def_file: str, func_call_file: str) -> None:
+        """Store input file paths for later parsing."""
         self.func_def_file = func_def_file
         self.func_call_file = func_call_file
 
     def read_valid_json(self, file: str) -> list[dict]:
+        """Load a JSON array from a file and return an empty list on errors."""
         try:
             with open(file, 'r') as f:
                 data: list[dict] = json.load(f)
@@ -26,6 +29,7 @@ class Parser:
         return data
 
     def read_func_def(self) -> list[FunctionDefinition]:
+        """Parse and validate function definition objects."""
 
         data = self.read_valid_json(self.func_def_file)
         if not data:
@@ -43,6 +47,10 @@ class Parser:
         return func_model_list
 
     def read_func_call(self) -> list[TestPrompt]:
+        """
+            Parse and validate prompt objects
+            used for function calling tests.
+        """
         data = self.read_valid_json(self.func_call_file)
         if not data:
             return []

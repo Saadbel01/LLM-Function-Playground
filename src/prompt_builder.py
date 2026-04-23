@@ -2,6 +2,7 @@ from src.class_models import FunctionDefinition
 
 
 def build_prompt(prompt: str, functions: list[FunctionDefinition]) -> str:
+    """Build the system and user prompt used by the model."""
     available_functions = ""
     for fun in functions:
         params = []

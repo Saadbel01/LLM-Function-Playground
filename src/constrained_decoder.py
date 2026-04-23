@@ -4,6 +4,7 @@ from src.class_models import FunctionDefinition
 
 
 class Stage(Enum):
+    """Finite-state stages used during constrained decoding."""
     NEED_OPEN_BRACE = "NEED_OPEN_BRACE"
     NEED_NAME_KEY = "NEED_NAME_KEY"
     NEED_COLON_1 = "NEED_COLON_1"
@@ -26,8 +27,10 @@ class Stage(Enum):
 
 
 class DecoderState:
+    """Store mutable decoding state for one function-call generation."""
 
     def __init__(self) -> None:
+        """Initialize a fresh decoder state."""
         self.current_stage: Stage = Stage.NEED_OPEN_BRACE
         self.partial: str = ""
         self.chosen_function: str = ""
@@ -38,20 +41,24 @@ class DecoderState:
 
 
 class ConstrainedDecoder:
+    """Apply token constraints and state transitions for valid outputs."""
 
     def __init__(self, vocab: Vocabulary,
                  functions: list[FunctionDefinition]) -> None:
+        """Initialize the decoder with vocabulary and function definitions."""
         self.vocab = vocab
         self.functions = functions
         self.function_map = {fun.name: fun for fun in functions}
         self.function_names = set(self.function_map.keys())
 
     def get_function_param_type(self, state: DecoderState) -> str:
+        """Return the expected type of the current argument."""
         return self.function_map[
             state.chosen_function
         ].parameters[state.current_arg].type
 
-    def get_valid_token_ids(self, state: DecoderState) -> list[int | None]:
+    def get_valid_token_ids(self, state: DecoderState) -> list[int]:
+        """Return token IDs allowed for the current decoding stage."""
 
         if state.current_stage == Stage.NEED_OPEN_BRACE:
             return [self.vocab.structural_tokens['{']]
@@ -90,7 +97,7 @@ class ConstrainedDecoder:
 
         elif state.current_stage == Stage.NEED_ARG_VALUE:
             param_type = self.get_function_param_type(state)
-            if param_type == "number":
+            if param_type == "number" or param_type == "integer":
                 valid = list(self.vocab.number_token_ids)
 
                 # if there are more keys AFTER this one → allow comma
@@ -119,8 +126,10 @@ class ConstrainedDecoder:
             return []
         else:
             raise ValueError(f"Unknown state: {state}")
+        return []
 
     def update_state(self, state: DecoderState, token_id: int) -> None:
+        """Update decoder state after consuming one generated token."""
         token_string = self.vocab.get_token_string(token_id)
         if state.current_stage == Stage.NEED_OPEN_BRACE:
             if token_string == '{':
@@ -178,7 +187,7 @@ class ConstrainedDecoder:
         elif state.current_stage == Stage.NEED_ARG_COLON:
             if token_string == ":":
                 param_type = self.get_function_param_type(state)
-                if param_type == "number":
+                if param_type == "number" or param_type == "integer":
                     state.current_stage = Stage.NEED_ARG_VALUE
                 else:
                     state.current_stage = Stage.NEED_QUOTE_OPEN_ARG_VALUE
@@ -189,10 +198,13 @@ class ConstrainedDecoder:
         elif state.current_stage == Stage.NEED_ARG_VALUE:
             type_selected = self.get_function_param_type(state)
             # print("type:", type_selected)
-            if type_selected == "number":
+            if type_selected == "number" or type_selected == "integer":
                 if "," in token_string or "}" in token_string:
                     state.collected_args[state.current_arg] = float(
                         state.partial.replace("\u0120", "").strip())
+                    if type_selected == "integer":
+                        state.collected_args[state.current_arg] = int(
+                            state.collected_args[state.current_arg])
                     state.used_keys.add(state.current_arg)
                     state.remaining_keys.discard(state.current_arg)
                     state.partial = ""
@@ -269,6 +281,7 @@ class ConstrainedDecoder:
 
     def mask_logits(self, state: DecoderState,
                     logits: list[float]) -> list[float]:
+        """Mask logits so only stage-valid token IDs remain selectable."""
 
         valid_ids = self.get_valid_token_ids(state)
         masked = [float('-inf')] * len(logits)

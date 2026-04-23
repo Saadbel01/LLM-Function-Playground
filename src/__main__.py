@@ -1,5 +1,5 @@
 from src.constrained_decoder import DecoderState
-from llm_sdk import Small_LLM_Model
+from llm_sdk import Small_LLM_Model  # type: ignore[attr-defined]
 from src.prompt_builder import build_prompt
 from src.parser import Parser
 from src.constrained_decoder import Stage, ConstrainedDecoder
@@ -8,14 +8,16 @@ from src.vocabulary import Vocabulary
 from src.class_models import FunctionCall
 import json
 import os
+import argparse
 
 
-def main() -> list[FunctionCall]:
+def main(parser_param: argparse.Namespace) -> list[FunctionCall]:
+    """Run constrained decoding for all prompts and return parsed calls."""
 
     model = Small_LLM_Model()
     state = DecoderState()
-    parser = Parser("input/functions_definition.json",
-                    "input/function_calling_tests.json")
+    parser = Parser(parser_param.functions_definition,
+                    parser_param.input)
     list_funcs = parser.read_func_def()
     list_call = parser.read_func_call()
     vocab = Vocabulary(model, list_funcs)
@@ -25,7 +27,7 @@ def main() -> list[FunctionCall]:
     list_stage = list(Stage)
     for prompt in list_call:
         print(prompt.prompt)
-        generated_tokens = []
+        generated_tokens: list[int] = []
         prompt_tokens = model.encode(build_prompt(prompt.prompt,
                                                   list_funcs))[0].tolist()
         all_tokens = []
@@ -38,9 +40,12 @@ def main() -> list[FunctionCall]:
                 current_index = list_stage.index(state.current_stage)
                 if current_index != Stage.DONE:
                     type_selected = decoder.get_function_param_type(state)
-                    if type_selected == "number":
+                    if type_selected == "number" or type_selected == "integer":
                         state.collected_args[state.current_arg] = float(
                             state.partial.replace("\u0120", "").strip())
+                        if type_selected == "integer":
+                            state.collected_args[state.current_arg] = int(
+                                state.collected_args[state.current_arg])
                         state.used_keys.add(state.current_arg)
                         state.remaining_keys.discard(state.current_arg)
                         state.partial = ""
@@ -65,7 +70,8 @@ def main() -> list[FunctionCall]:
             all_tokens = prompt_tokens + generated_tokens
             previous_token = all_tokens[-1]
             logits = model.get_logits_from_input_ids(all_tokens)
-            masked_logits = decoder.mask_logits(state, np.array(logits))
+            # logits_list = logits.tolist()
+            masked_logits = decoder.mask_logits(state, logits)
             # print(state.current_stage)
             if quote_forced:
                 token = vocab.token_to_id['"}']
@@ -97,9 +103,31 @@ def main() -> list[FunctionCall]:
 
 if __name__ == "__main__":
     try:
-        list_call = main()
-        os.makedirs("data/output", exist_ok=True)
-        with open("data/output/function_calling_results.json",
+        parser_param = argparse.ArgumentParser(
+            description="Parameters for function calling constrained decoding")
+
+        parser_param.add_argument(
+            "--functions_definition",
+            type=str,
+            help="Path to function definition file"
+        )
+        parser_param.add_argument(
+            "--input",
+            type=str,
+            help="Path to input file"
+        )
+        parser_param.add_argument(
+            "--output",
+            type=str,
+            help="Path to output file"
+        )
+
+        args = parser_param.parse_args()
+
+        list_call = main(args)
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        # os.makedirs("data/output", exist_ok=True)
+        with open(args.output,
                   "w", encoding="utf-8") as f:
             json.dump(
                 [fc.model_dump() for fc in list_call],

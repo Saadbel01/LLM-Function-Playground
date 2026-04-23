@@ -16,5 +16,17 @@ members = [
     "llm_sdk",
 ]
 
+[tool.mypy]
+exclude = ["moulinette", "llm_sdk"]
+
+[[tool.mypy.overrides]]
+module = "llm_sdk.*"
+ignore_errors = true
+
 [tool.uv.sources]
 llm-sdk = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "mypy>=1.20.2",
+]
