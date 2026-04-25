@@ -245,12 +245,13 @@ class ConstrainedDecoder:
                                 state.current_stage = state_need
                         else:
                             state.current_stage = Stage.NEED_COMMA_OR_CLOSE
-                elif '}' in token_string:
+                elif '}' in token_string and token_string[-1] == '}':
                     state.collected_args[state.current_arg] = state.partial
                     state.used_keys.add(state.current_arg)
                     state.remaining_keys.discard(state.current_arg)
                     state.partial = ""
-                    if token_string.count('}') == 2:
+                    if (token_string.count('}') == 2
+                            and token_string[-1] == '}'):
                         # print("this is for debugging")
                         state.current_stage = Stage.DONE
                     else:
