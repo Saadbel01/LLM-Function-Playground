@@ -4,7 +4,7 @@ install:
 	uv sync
 
 run:
-	uv run python -m src --functions_definition moulinette/successfully/input/functions_definition.json --input moulinette/successfully/input/function_calling_tests.json --output data/output/function_calling_results.json
+	uv run python -m src --functions_definition input/functions_definition.json --input input/function_calling_tests.json --output data/output/function_calling_results.json
 
 test:
 	uv run python3 test_result.py
