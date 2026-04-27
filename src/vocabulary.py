@@ -43,7 +43,7 @@ class Vocabulary:
 
     def get_number_token_ids(self) -> list[int]:
         """Return token IDs that can compose numeric values."""
-        valid_tokens = set("0123456789.-")
+        valid_tokens = set("0123456789.-\u0120")
         token_ids = []
         for token, id_token in self.token_to_id.items():
             if all(tok in valid_tokens for tok in token):
