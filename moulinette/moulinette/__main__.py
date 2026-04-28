@@ -78,22 +78,22 @@ class Moulinette:
         self.output.separator()
         self.output.info(f"Exercise files generated in: {output_path}")
 
-    def grade_student_answers(
+    def grade_answers(
         self,
-        student_answer_path: str,
+        answer_path: str,
         set: str = "public",
     ) -> None:
         """Grade student submission against corrections.
 
         Args:
-            student_answer_path: Path to the student's function_calls.json file
+            answer_path: Path to the student's function_calls.json file
             set: Exercise set to grade against - "public" or "private" (default: "public")
         """
         if set not in ("public", "private"):
             self.output.error(f"Invalid set '{set}'. Must be 'public' or 'private'.")
             return
 
-        student_path = Path(student_answer_path)
+        student_path = Path(answer_path)
         if not student_path.exists():
             self.output.error(f"Student answer file not found: {student_path}")
             return

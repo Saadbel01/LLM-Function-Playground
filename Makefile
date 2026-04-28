@@ -13,7 +13,10 @@ debug:
 	uv run python3 -m pdb -m src
 
 clean:
-	rm -rf **/__pycache__  .mypy_cache __pycache__
+	find . -iname "*cache*" | xargs rm -rf
+
+fclean: clean
+	rm -rf .venv
 
 lint:
 	uv run flake8 . --exclude=.venv,moulinette,llm_sdk
@@ -22,4 +25,4 @@ lint-strict:
 	uv run flake8 .
 	uv run mypy . --strict
 
-.PHONY: install run debug clean lint lint-strict
+.PHONY: install run debug clean lint lint-strict fclean

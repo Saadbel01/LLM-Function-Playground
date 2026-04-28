@@ -17,14 +17,11 @@ class Parser:
             with open(file, 'r') as f:
                 data: list[dict] = json.load(f)
         except FileNotFoundError as e:
-            print("Error:", e)
-            return []
+            raise FileNotFoundError("Error:", e)
         except json.decoder.JSONDecodeError:
-            print("Json data not valid.")
-            return []
+            raise Exception("Json data not valid.")
         except ValueError as e:
-            print("Error:", e)
-            return []
+            raise ValueError("Error:", e)
 
         return data
 
@@ -41,9 +38,10 @@ class Parser:
                 func_obj = FunctionDefinition(**item)
                 func_model_list.append(func_obj)
             except ValidationError as e:
-                print("Error:", e.errors()[0]["msg"])
+                print("Error in functions definition:", e.errors()[0]["msg"])
+                raise
             except KeyError as e:
-                print("Error:", e)
+                raise ValueError("Error missing or incorrect key:", e)
         return func_model_list
 
     def read_func_call(self) -> list[TestPrompt]:
@@ -62,8 +60,9 @@ class Parser:
                 test_model_list.append(test_obj)
             except ValidationError as e:
                 print("Error:", e.errors()[0]["msg"])
+                raise
             except KeyError as e:
-                print("Error:", e)
+                raise ValueError("Error:", e)
         return test_model_list
 
 

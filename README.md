@@ -132,7 +132,23 @@ make install   # install dependencies
 make run       # run with default paths
 make lint      # run flake8 and mypy
 make clean     # remove caches and temporary files
+make fclean    # remove caches and temporary files and virtual env
 ```
+
+---
+
+### Evaluation
+
+Run the project checks and grading flow with uv:
+
+```bash
+cd moulinette
+uv sync
+uv run python -m moulinette prepare_exercises --set private correction_tests
+cd ..
+make run    # Change the --input --functions_definition with the path in the correction_tests folder
+cd moulinette
+uv run python -m moulinette grade_answers --set private --answer_path <path>
 
 ---
 
