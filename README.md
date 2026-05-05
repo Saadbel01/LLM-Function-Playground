@@ -39,7 +39,7 @@ This guarantees that every generated token maintains both structural validity (c
 
 The generation follows a strict sequence of stages defined in the `Stage` enum. Each stage controls exactly which tokens the model is allowed to generate:
 
-![Finite-state machine diagram](docs/fsm-diagram.svg)
+![Finite-state machine diagram](docs/fsm-diagram.png)
 
 After each argument is collected, the machine checks `remaining_keys`. If more arguments exist, it loops back to `NEED_QUOTE_OPEN_ARG_KEY`. Otherwise it closes the JSON object and finishes.
 
